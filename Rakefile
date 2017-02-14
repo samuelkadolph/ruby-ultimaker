@@ -7,9 +7,8 @@ task :default => :test
 desc "Build ultimaker and ultimaker-discovery into the pkg directory"
 task "build" => %W[ultimaker:build ultimaker-discovery:build]
 
-desc "Clean up the doc and pkg directories"
+desc "Clean up the pkg directory"
 task "clean" do
-  FileUtils.rm_rf("doc")
   FileUtils.rm_rf("pkg")
 end
 
