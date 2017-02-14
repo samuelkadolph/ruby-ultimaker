@@ -3,16 +3,18 @@ require "ipaddr"
 require "ultimaker"
 
 module Ultimaker
-  # Discovers all printers on the network. Requires the ultimaker-discovery gem to be installed and required.
-  # @see Ultimaker::Discovery.discover_printers
-  def self.discover_printers
-    Discovery.discover_printers
-  end
+  class << self
+    # Discovers all printers on the network. Requires the ultimaker-discovery gem to be installed and required.
+    # @see Ultimaker::Discovery.discover_printers
+    def discover_printers
+      Discovery.discover_printers
+    end
 
-  # Search for a printer with a specific name. Requires the ultimaker-discovery gem to be installed and required.
-  # @see Ultimaker::Discovery.find_by_name
-  def self.find_by_name(name)
-    Discovery.find_by_name(name)
+    # Search for a printer with a specific name. Requires the ultimaker-discovery gem to be installed and required.
+    # @see Ultimaker::Discovery.find_by_name
+    def find_by_name(name)
+      Discovery.find_by_name(name)
+    end
   end
 
   # Ultimaker::Discovery is for discovering Ultimaker printers on your network via mDNS. Requires the
@@ -70,50 +72,52 @@ module Ultimaker
       end
     end
 
-    # Discovers all printers on the network.
-    # @return [Array<Printer>] The printers that were discovered.
-    def self.discover_printers
-      service = DNSSD::Service.browse(TYPE)
-      service.each(TIMEOUT).map do |browse_reply|
-        resolve_reply = resolve(browse_reply)
+    class << self
+      # Discovers all printers on the network.
+      # @return [Array<Printer>] The printers that were discovered.
+      def discover_printers
+        service = DNSSD::Service.browse(TYPE)
+        service.each(TIMEOUT).map do |browse_reply|
+          resolve_reply = resolve(browse_reply)
 
-        Printer.new(get_address(resolve_reply), resolve_reply.text_record)
-      end
-    ensure
-      service.stop
-    end
-
-    # Search for a printer with a specific name.
-    # @param name [String] The name of the printer to search for.
-    # @return [Printer, nil] The printer or nil.
-    def self.find_by_name(name)
-      service = DNSSD::Service.browse(TYPE)
-      service.each(TIMEOUT).each do |browse_reply|
-        resolve_reply = resolve(browse_reply)
-
-        if resolve_reply.text_record["name"] == name
-          return Printer.new(get_address(resolve_reply), resolve_reply.text_record)
+          Printer.new(get_address(resolve_reply), resolve_reply.text_record)
         end
+      ensure
+        service.stop
       end
 
-      nil
-    ensure
-      service.stop
-    end
+      # Search for a printer with a specific name.
+      # @param name [String] The name of the printer to search for.
+      # @return [Printer, nil] The printer or nil.
+      def find_by_name(name)
+        service = DNSSD::Service.browse(TYPE)
+        service.each(TIMEOUT).each do |browse_reply|
+          resolve_reply = resolve(browse_reply)
 
-    private
-    def self.get_address(reply)
-      service = DNSSD::Service.getaddrinfo(reply.target, 0, 0, reply.interface)
-      service.each(TIMEOUT).detect { |addr_info| !addr_info.flags.more_coming? }
-    ensure
-      service.stop
-    end
+          if resolve_reply.text_record["name"] == name
+            return Printer.new(get_address(resolve_reply), resolve_reply.text_record)
+          end
+        end
 
-    def self.resolve(reply)
-      service = DNSSD::Service.resolve(reply)
-      service.each(TIMEOUT).detect { |resolved| !resolved.flags.more_coming? }
-    ensure
-      service.stop
+        nil
+      ensure
+        service.stop
+      end
+
+      private
+      def get_address(reply)
+        service = DNSSD::Service.getaddrinfo(reply.target, 0, 0, reply.interface)
+        service.each(TIMEOUT).detect { |addr_info| !addr_info.flags.more_coming? }
+      ensure
+        service.stop
+      end
+
+      def resolve(reply)
+        service = DNSSD::Service.resolve(reply)
+        service.each(TIMEOUT).detect { |resolved| !resolved.flags.more_coming? }
+      ensure
+        service.stop
+      end
     end
   end
 end
