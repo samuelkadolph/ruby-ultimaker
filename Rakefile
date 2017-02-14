@@ -12,6 +12,7 @@ task "clean" do
 end
 
 YARD::Rake::YardocTask.new do |t|
+  t.after = ->() { FileUtils.touch("docs/.nojekyll") }
   t.name = "doc"
   t.options = %W[--output-dir docs]
 end

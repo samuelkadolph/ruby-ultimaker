@@ -187,6 +187,31 @@ href="https://ultimaker.com/en/community/23283-inside-the-ultimaker-3-day-2-remo
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#connect-class_method" title="connect (class method)">.<strong>connect</strong>(address)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Connects to an Ultimaker printer and returns an instance of the
+corresponding printer class.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#discover_printers-class_method" title="discover_printers (class method)">.<strong>discover_printers</strong>  &#x21d2; Object </a>
     
 
@@ -242,7 +267,67 @@ href="https://ultimaker.com/en/community/23283-inside-the-ultimaker-3-day-2-remo
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="discover_printers-class_method">
+  <h3 class="signature first" id="connect-class_method">
+  
+    .<strong>connect</strong>(address)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Connects to an Ultimaker printer and returns an instance of the
+corresponding printer class.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>address</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The host or IP address to connect to.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/ultimaker.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_connect'>connect</span><span class='lparen'>(</span><span class='id identifier rubyid_address'>address</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="discover_printers-class_method">
   
     .<strong>discover_printers</strong>  &#x21d2; <tt>Object</tt> 
   
@@ -344,7 +429,7 @@ gem to be installed and required.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Feb 14 03:45:26 2017 by
+  Generated on Tue Feb 14 04:00:38 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.4.0).
 </div>

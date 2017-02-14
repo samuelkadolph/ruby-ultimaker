@@ -12,4 +12,10 @@ require "ultimaker/version"
 #
 # @author Samuel Kadolph <samuel@kadolph.com
 module Ultimaker
+  class << self
+    # Connects to an Ultimaker printer and returns an instance of the corresponding printer class.
+    # @param [String] address The host or IP address to connect to.
+    def connect(address)
+    end
+  end
 end
