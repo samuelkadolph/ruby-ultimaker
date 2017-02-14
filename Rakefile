@@ -13,11 +13,16 @@ task "clean" do
   FileUtils.rm_rf("pkg")
 end
 
-YARD::Rake::YardocTask.new do |t|
-  t.after = ->() { FileUtils.touch("docs/.nojekyll") }
-  t.files = FileList["lib/**/*.rb"] + ["-", "LICENSE"]
-  t.name = "doc"
-  t.options = %W[--output-dir docs]
+namespace "docs" do
+  YARD::Rake::YardocTask.new do |t|
+    t.after = ->() { FileUtils.touch("doc/.nojekyll") }
+    t.files = FileList["lib/**/*.rb"] + ["-", "LICENSE"]
+    t.name = "build"
+  end
+
+  desc "Publish"
+  task :publish do
+  end
 end
 
 desc "Build and install ultimaker and ultimaker-discovery into system gems"
