@@ -2,6 +2,8 @@ require "bundler/gem_helper"
 require "rake/testtask"
 require "yard"
 
+task :default => :test
+
 desc "Build ultimaker and ultimaker-discovery into the pkg directory"
 task "build" => %W[ultimaker:build ultimaker-discovery:build]
 
@@ -13,6 +15,7 @@ end
 
 YARD::Rake::YardocTask.new do |t|
   t.after = ->() { FileUtils.touch("docs/.nojekyll") }
+  t.files = FileList["lib/**/*.rb"] + ["-", "LICENSE"]
   t.name = "doc"
   t.options = %W[--output-dir docs]
 end
@@ -20,12 +23,11 @@ end
 desc "Build and install ultimaker and ultimaker-discovery into system gems"
 task "install" => %W[ultimaker:install ultimaker-discovery:install]
 
-desc "Create tag and push ultimaker and ultimaker-discovery to Rubygems"
-task "release" => %W[ultimaker:release ultimaker-discovery:release]
+desc "Generate docs, create tag, and push ultimaker and ultimaker-discovery to Rubygems"
+task "release" => %W[doc ultimaker:release ultimaker-discovery:release]
 
 Rake::TestTask.new(:test) do |t|
-  t.libs << "test"
-  t.libs << "lib"
+  t.libs << "lib" << "test"
   t.test_files = FileList["test/**/*_test.rb"]
 end
 
@@ -36,5 +38,3 @@ end
 namespace "ultimaker-discovery" do
   Bundler::GemHelper.install_tasks(name: "ultimaker-discovery")
 end
-
-task :default => :test
