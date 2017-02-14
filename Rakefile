@@ -5,6 +5,12 @@ require "yard"
 desc "Build ultimaker and ultimaker-discovery into the pkg directory"
 task "build" => %W[ultimaker:build ultimaker-discovery:build]
 
+desc "Clean up the doc and pkg directories"
+task "clean" do
+  FileUtils.rm_rf("doc")
+  FileUtils.rm_rf("pkg")
+end
+
 YARD::Rake::YardocTask.new do |t|
   t.name = "doc"
 end

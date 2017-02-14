@@ -1,11 +1,11 @@
 require "ultimaker/printer"
 
 module Ultimaker
-  # The Ultimaker 3 printer.
+  # The Ultimaker 3 printer. Use this class if you know you're dealing with an Ultimaker 3.
   class Ultimaker3 < Printer
   end
 
-  # The Ultimaker 3 Extended printer.
+  # The Ultimaker 3 Extended printer. Use this class if you know you're dealing with an Ultimaker 3 Extended.
   class Ultimaker3Extended < Ultimaker3
   end
 
