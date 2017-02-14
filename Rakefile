@@ -15,21 +15,18 @@ end
 
 namespace "docs" do
   YARD::Rake::YardocTask.new do |t|
-    t.after = ->() { FileUtils.touch("doc/.nojekyll") }
+    t.after = ->() { FileUtils.touch("docs/.nojekyll") }
     t.files = FileList["lib/**/*.rb"] + ["-", "LICENSE"]
     t.name = "build"
-  end
-
-  desc "Publish"
-  task :publish do
+    t.options = %W[--output-dir docs]
   end
 end
 
 desc "Build and install ultimaker and ultimaker-discovery into system gems"
 task "install" => %W[ultimaker:install ultimaker-discovery:install]
 
-desc "Generate docs, create tag, and push ultimaker and ultimaker-discovery to Rubygems"
-task "release" => %W[doc ultimaker:release ultimaker-discovery:release]
+desc "Create tag and push ultimaker and ultimaker-discovery to Rubygems"
+task "release" => %W[ultimaker:release ultimaker-discovery:release]
 
 Rake::TestTask.new(:test) do |t|
   t.libs << "lib" << "test"
