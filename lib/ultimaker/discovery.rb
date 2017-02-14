@@ -32,7 +32,7 @@ module Ultimaker
       # @return [IPAddr]
       attr_reader :address
 
-      # A hash containing all of the extra information collected.
+      # A hash containing all of the extra information collected. Examples: +hotend_serial_0+, +hotend_type_0+.
       # @return [Hash]
       attr_reader :extra
 
