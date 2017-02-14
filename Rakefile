@@ -13,6 +13,7 @@ end
 
 YARD::Rake::YardocTask.new do |t|
   t.name = "doc"
+  t.options = %W[--output-dir docs]
 end
 
 desc "Build and install ultimaker and ultimaker-discovery into system gems"
