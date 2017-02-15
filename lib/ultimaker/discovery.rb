@@ -1,19 +1,31 @@
 require "dnssd"
-require "ipaddr"
 require "ultimaker"
 
 module Ultimaker
   class << self
     # Discovers all printers on the network. Requires the ultimaker-discovery gem to be installed and required.
+    # @return [Array<Printer>] The printers that were discovered.
     # @see Ultimaker::Discovery.discover_printers
     def discover_printers
       Discovery.discover_printers
     end
 
     # Search for a printer with a specific name. Requires the ultimaker-discovery gem to be installed and required.
+    # @param name [String] The name of the printer to search for.
+    # @return [Printer, nil] The printer or nil.
     # @see Ultimaker::Discovery.find_by_name
     def find_by_name(name)
       Discovery.find_by_name(name)
+    end
+
+    # Search for a printer with a specific name and raise an error if it is not found. Requires the ultimaker-discovery
+    # gem to be installed and required.
+    # @param name [String] The name of the printer to search for.
+    # @return [Printer] The printer.
+    # @raise [PrinterNotFoundError] If the printer is not found.
+    # @see Ultimaker::Discovery.find_by_name!
+    def find_by_name!(name)
+      Discovery.find_by_name!(name)
     end
   end
 
@@ -21,15 +33,15 @@ module Ultimaker
   # ultimaker-discovery gem to be installed and required.
   module Discovery
     # @!visibility private
-    TIMEOUT = 2
+    MDNS_TIMEOUT = 2
 
     # @!visibility private
-    TYPE = "_ultimaker._tcp".freeze
+    MDNS_TYPE = "_ultimaker._tcp".freeze
 
     # Represents a discovered printer and holds basic info collected during the discovery process.
     class Printer
       # The IP address of the printer.
-      # @return [IPAddr]
+      # @return [String]
       attr_reader :address
 
       # A hash containing all of the extra information collected. Examples: +hotend_serial_0+, +hotend_type_0+.
@@ -56,12 +68,14 @@ module Ultimaker
 
       # @!visibility private
       def initialize(addr_info, text_record)
-        @address = IPAddr.new(addr_info.address).freeze
-        @extra = text_record.reject { |key,| %W[firmware_version machine name type].include?(key) }.freeze
-        @firmware_version = text_record["firmware_version"].freeze
+        scrubbed = Hash[text_record.map { |k, v| [k, v.force_encoding("UTF-8").freeze] }]
+
+        @address = addr_info.address.freeze
+        @extra = scrubbed.reject { |key,| %W[firmware_version machine name type].include?(key) }.freeze
+        @firmware_version = scrubbed["firmware_version"]
         @hostname = addr_info.hostname.freeze
-        @name = text_record["name"].freeze
-        @type = text_record["machine"].freeze
+        @name = scrubbed["name"]
+        @type = scrubbed["machine"]
       end
 
       # Connects to the discovered printer using the full fledged Ultimaker API.
@@ -76,8 +90,8 @@ module Ultimaker
       # Discovers all printers on the network.
       # @return [Array<Printer>] The printers that were discovered.
       def discover_printers
-        service = DNSSD::Service.browse(TYPE)
-        service.each(TIMEOUT).map do |browse_reply|
+        service = DNSSD::Service.browse(self::MDNS_TYPE)
+        service.each(self::MDNS_TIMEOUT).map do |browse_reply|
           resolve_reply = resolve(browse_reply)
 
           Printer.new(get_address(resolve_reply), resolve_reply.text_record)
@@ -90,8 +104,8 @@ module Ultimaker
       # @param name [String] The name of the printer to search for.
       # @return [Printer, nil] The printer or nil.
       def find_by_name(name)
-        service = DNSSD::Service.browse(TYPE)
-        service.each(TIMEOUT).each do |browse_reply|
+        service = DNSSD::Service.browse(self::MDNS_TYPE)
+        service.each(self::MDNS_TIMEOUT).each do |browse_reply|
           resolve_reply = resolve(browse_reply)
 
           if resolve_reply.text_record["name"] == name
@@ -101,22 +115,30 @@ module Ultimaker
 
         nil
       ensure
-        service.stop
+        service.stop if service
+      end
+
+      # Search for a printer with a specific name and raise an error if it is not found.
+      # @param name [String] The name of the printer to search for.
+      # @return [Printer] The printer.
+      # @raise [PrinterNotFoundError] If the printer is not found.
+      def find_by_name!(name)
+        find_by_name(name) || raise(PrinterNotFoundError, "Could not find a printer with name '#{name}'")
       end
 
       private
       def get_address(reply)
         service = DNSSD::Service.getaddrinfo(reply.target, 0, 0, reply.interface)
-        service.each(TIMEOUT).detect { |addr_info| !addr_info.flags.more_coming? }
+        service.each(self::MDNS_TIMEOUT).detect { |addr_info| !addr_info.flags.more_coming? }
       ensure
-        service.stop
+        service.stop if service
       end
 
       def resolve(reply)
         service = DNSSD::Service.resolve(reply)
-        service.each(TIMEOUT).detect { |resolved| !resolved.flags.more_coming? }
+        service.each(self::MDNS_TIMEOUT).detect { |resolved| !resolved.flags.more_coming? }
       ensure
-        service.stop
+        service.stop if service
       end
     end
   end

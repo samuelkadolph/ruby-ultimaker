@@ -1,4 +1,5 @@
 require "ultimaker/connection"
+require "ultimaker/errors"
 require "ultimaker/printers"
 require "ultimaker/version"
 
