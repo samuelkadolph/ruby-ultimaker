@@ -1,5 +1,6 @@
-require "test_helper"
 require "securerandom"
+require "test_helper"
+require "ultimaker/discovery"
 
 class UltimakerDiscoveryTest < Minitest::Test
   def setup

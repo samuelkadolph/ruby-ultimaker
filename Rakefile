@@ -29,7 +29,12 @@ task "release" => %W[ultimaker:release ultimaker-discovery:release]
 
 Rake::TestTask.new(:test) do |t|
   t.libs << "lib" << "test"
-  t.test_files = FileList["test/**/*_test.rb"]
+
+  if (ENV["DNSSD"] == "1" || RUBY_PLATFORM[/darwin/]) && ENV["DNSSD"] != "0"
+    t.test_files = FileList["test/**/*_test.rb"]
+  else
+    t.test_files = FileList["test/**/*_test.rb"].reject { |f| f =~ /discovery/ }
+  end
 end
 
 namespace "ultimaker" do
